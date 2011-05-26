@@ -1,0 +1,8 @@
+== features
+
+- when item is selected, and RW is focused, enable key navigation
+- allow specifying what object to being inspecting
+
+== bugs
+
+- handle inspecting undefined

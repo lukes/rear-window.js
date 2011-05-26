@@ -1,0 +1,356 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js'></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>untitled</title>
+	
+	<style type="text/css" media="screen">
+	#rear-window {
+	  background-color: white;
+	  line-height: 12px;
+	  font-weight: normal;
+	  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+	  font-size: 12px;
+	  color: black;
+	}
+	#rear-window ul {
+	  margin: 0;
+	  padding: 0;
+	}
+	#rear-window ul li {
+	  list-style: none;
+	  padding: 2px;
+	  cursor: default;
+	}
+	#rear-window .column {
+	   float: left;
+	   overflow-y: scroll; /* auto */
+	   overflow-x: hidden;
+	   padding: 2px;
+	   min-width: 150px;
+	   height: 205px;
+	 }
+	 #rear-window .column .variable {
+	   background-color: #fff4d1;
+	   height: 100%;
+	 }
+	 #rear-window .column .variable #type {
+     font-style: italic;
+     text-align: center;
+     border-bottom: 1px solid #aaa;
+     padding: 2px 0;
+   }
+	 #rear-window .column .variable #value {
+	   font-family: 'Lucida Console', 'Monaco', monospace;
+	   margin-top: 10px;
+   }
+	 #rear-window li.category {
+	   background-color: #e5edfc;
+	 }
+	 #rear-window li.selected {
+	   background-color: #3838ff;
+	   color: white;
+	 }
+	 #rear-window .count {
+	   font-family:arial;
+	   white-space:nowrap;
+	   padding:1px 4px;
+	   margin-top:-2px;
+	   margin-right:4px;
+	   text-align:left;
+	   line-height:normal;
+	   font-weight:bold;
+	   font-size: 11px;
+	   border-radius:7px;
+	   background-color:#8097bd;
+	   color:white;
+	   float: right;
+	 }
+	</style>
+	
+</head>
+
+<body>
+
+<script type="text/javascript" charset="utf-8">
+
+var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert(true) }, 'b': 0, 's': "hello", z: { i: 51, o: "goodmorning sir, \nhow goes it?", regex: new RegExp("hello!", "mips")} };
+
+// TODO should I unbind every action before removing things from DOM?
+// TODO can rearwindow remember the last selected path, so on reload it selects what it was last looking at?
+
+(function() {
+  var NAMESPACE = 'rear';
+  var initial_obj = 'window';
+  var rearwindow;
+  
+  // event management ( thanks John Resig )
+  // via blackbird.js http://www.gscottolson.com/blackbirdjs/
+	addEvent = function ( obj, type, fn ) {
+		var obj = ( obj.constructor === String ) ? document.getElementById( obj ) : obj;
+		if ( obj.attachEvent ) {
+			obj[ 'e' + type + fn ] = fn;
+			obj[ type + fn ] = function(){ obj[ 'e' + type + fn ]( window.event ) };
+			obj.attachEvent( 'on' + type, obj[ type + fn ] );
+		} else obj.addEventListener( type, fn, false );
+	}
+	removeEvent = function ( obj, type, fn ) {
+		var obj = ( obj.constructor === String ) ? document.getElementById( obj ) : obj;
+		if ( obj.detachEvent ) {
+			obj.detachEvent( 'on' + type, obj[ type + fn ] );
+			obj[ type + fn ] = null;
+	  } else obj.removeEventListener( type, fn, false );
+	}
+	
+	// initial rearwindow HTML
+	// todo add in CSS dynamically, allowing user to provide their own
+	initDOM = function(obj) {
+	  var e = document.createElement('div');
+	  e.id = 'rear-window';
+	  e.innerHTML = ['<div class="column focus"><ul><li class="selected">', obj, '</li></ul></div>'].join('');
+	  e.appendChild(addColumn(obj));
+	  return e;
+	}
+	
+	// called when a new column is added to DOM
+	addColumn = function(obj) {
+	  if (typeof(obj) == "string") obj = eval(obj);
+	  var e = document.createElement("div");
+	  addClass(e, 'column');
+    
+    // delegate the drawing of the contents of the div
+    // depending on if this column is for an object 
+    // (whose properties should be listed in the column)
+    // or a variable (whose value should be displayed)
+    
+    var type = realTypeOf(obj);
+    if (type == 'object') { // if this is an object that has properties
+      contents = columnForObject(obj);
+    } else {
+      contents = columnForVar(obj, type);
+    }
+    
+	  e.appendChild(contents);
+	  return e;
+	}
+	
+	// todo properly handle arrays with objects inside them,
+	// and multdimensional arrays
+	// like [[1, 2, {x:0}], 3]
+	var columnForVar = function(obj, type) {
+	  var div = document.createElement("div");
+	  addClass(div, 'variable');
+    if (obj === null) {
+      value = 'null';
+    } else {
+      var value = obj.toString();
+  	  if (type == 'array') {
+  	    value = ['[', value, ']'].join('');
+  	  } else if (type == 'string') {
+  	    value = ['"', value, '"'].join('')
+  	  }      
+    }
+	  div.innerHTML = ['<div id="type">', type, '</div><div id="value">', value, '</div>'].join('');
+	  return div;
+	}
+	
+	// display the properties of the object
+	// with categories at the top
+	var columnForObject = function(obj) {
+    var ul = document.createElement("ul");
+    	  
+	  // initialise array that will hold all properties for obj
+	  properties = [];
+	  
+	  // used for tracking how much of each type of
+	  // property we have in the given object.
+	  var type_count = { 'function': 0, 'object': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'undefined': 0 };
+	  
+	  // loop over properties in the given object
+	  for (var i in obj) {
+	    var val = obj[i];
+	    var type = realTypeOf(val);
+	    // add this property to our array
+      properties.push({
+        name: i,
+        type: type
+      });
+      // increment our count on the types of properties
+      type_count[type] += 1;
+	  }
+	  
+	  // sort properties by name
+	  properties.sort(function(a, b) {
+	    var a_name = a.name.toLowerCase();
+      var b_name = b.name.toLowerCase();
+	    if (a_name > b_name) return 1;
+	    if (b_name > a_name) return -1;
+	    return 0;
+	  });
+	  
+	  // begin building our property list
+	  
+	  // add categories at top
+	  for (type in type_count) { // loop over our type count array
+	    if (type_count[type] == 0) continue; // skip this type (category) if given object had no properties of this type
+	    // building <li>
+	    var li = document.createElement("li");
+	    li.className = "category";
+	    li.innerHTML = ['<span class="count">', type_count[type], '</span> <span>', type, 's</span>'].join('');
+	    addEvent(li, 'click', itemClickEvent); // click event handler
+      ul.appendChild(li);	    
+	  }
+	  
+    // add properties of given object below categories
+	  for (p in properties) {
+  	  var li = document.createElement("li");
+  	  li.innerHTML = properties[p].name;
+  	  addEvent(li, 'click', itemClickEvent); // click event handler
+      ul.appendChild(li);
+	  }
+	  return ul;
+	}
+	
+	// attach click events to items in columns
+	var itemClickEvent = function() {
+	  // determine if item clicked was a category.
+	  // categories and actual properties will display
+	  // different things when clicked
+	  if (hasClass(this, 'category')) {
+	    var type = 'category';
+	    var category = this.getElementsByTagName("span")[1].innerHTML; // determine category name
+	    category = category.replace(/s$/, ''); // remove any 's' at the end of category name
+	  } else {
+	    var type = 'variable';
+	  }
+	  
+	  var parent = this.parentNode;
+
+	  // clicked column receives focus class
+	  var columns = rearwindow.getElementsByTagName("div");
+	  // dotPath will track the object tree (?)
+	  var dotPath = [];
+	  // remove_column flag tells us at what point, if any, 
+	  // we should begin destroying existing columns.
+	  // if user was 4 columns in, and now selects something in column 2,
+	  // columns 3 and 4 should be removed from the DOM
+	  var remove_column = false;
+	  
+	  // loop through columns in the DOM
+	  for (var i=0;i<columns.length;i++) {
+	    
+	    var column = columns[i];
+	    
+	    // if remove_column is true, delete this
+	    // TODO should i unbind events before removing?
+	    if (remove_column) {
+	      rearwindow.removeChild(column);
+	      i--; // decrement i, as there's one less column in the DOM now
+	      continue; // skip to next in loop
+	    }
+	    
+	    // if we've reached the column that received a click event
+	    if (column == parent.parentNode) {
+	      // flag this as focused. 
+	      // the focus class helps us to build the dotPath variable below
+        addClass(parent.parentNode, "focus");
+   	    remove_column = true; // remove all other columns after this one
+   	    continue; // skip to next in loop
+ 	    }
+ 	    
+ 	    // for columns before the column that has focus
+      removeClass(column, "focus"); // ensure they no longer have this class
+      // determine dotPath (what object property tree has been selected)
+      
+	    var children = column.getElementsByTagName("li");
+	    for (var j=0;j<children.length;j++) { // for each <li> in this column
+	      var child = children[j];
+	      // if this <li> has selected class, but is not a category
+	      if (hasClass(child, "selected") && !hasClass(child, 'category')) {
+	        dotPath.push(child.innerHTML); // add to dotPath
+	        break;
+  	    } 
+      }
+	  } // end loop through columns
+	  
+	  // the list item clicked should receive the "selected" class
+	  var siblings = parent.getElementsByTagName("li");
+	  for (var i=0;i<siblings.length;i++) removeClass(siblings[i], "selected"); // remove selected from any siblings
+	  addClass(this, "selected"); // add class to this
+	  
+	  // add a new column. we need to determine an object to pass to 
+	  // addColumn(). if this is a category, this will be a new object
+	  // made up of properties that match the selected category.
+	  // if a variable property was clicked, we pass the object property tree
+	  // to that variable
+	  
+	  if (type == "category") { // if item clicked was a category
+	    // find all objects that match this category type, and add a column;
+	    var obj = eval(dotPath.join('.')); // obj becomes the selected object property tree
+	    var mock_obj = {};
+	    for (i in obj) {
+	      var val = obj[i];
+	      if (realTypeOf(val) == category) { // if property matches category
+	        mock_obj[i] = val; // add this to mock_obj
+	      }
+	    }
+      rearwindow.appendChild(addColumn(mock_obj)); // build a column for mock_obj
+	  } else { // item clicked on was a variable
+	    // dotPath becomes the selected object property tree, plus the currently selected variable
+  	  dotPath.push(this.innerHTML);
+  	  rearwindow.appendChild(addColumn(dotPath.join('.')));
+    }
+	}	
+	
+	/* utilities */
+	
+	var addClass = function(elem, class_name) {
+	  if (!hasClass(elem, class_name)) {
+	    elem.className += (' ' + class_name);
+	  }
+	}
+	
+	var removeClass = function(elem, class_name) {
+	  var regex = new RegExp(class_name, "gims");
+	  elem.className = elem.className.replace(regex, '');
+	}
+	
+	var hasClass = function(elem, class_name) {
+	  return !!elem.className.match(class_name);
+	}
+	
+	// from http://joncom.be/code/realtypeof/
+	var realTypeOf = function(v) {
+    if (typeof(v) == "object" || typeof(v) == "function") {
+      if (v === null) return "null";
+      if (v.constructor == (new Array).constructor) return "array";
+      if (v.constructor == (new Date).constructor) return "date";
+      if (v.constructor == (new RegExp).constructor) return "regex";
+      return "object";
+    }
+    return typeof(v);
+  }
+  
+	// bootstrap
+	var init = function() {
+		// create initial rearwindow wrapper		
+		rearwindow = initDOM(initial_obj);	
+		var body = document.getElementsByTagName('BODY')[0];
+    body.appendChild(rearwindow);	  
+	}
+	
+  window[NAMESPACE] = {
+    init: init(),
+    rearwindow: rearwindow
+  };		
+  
+})();
+
+</script>
+
+</body>
+</html>
