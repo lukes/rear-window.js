@@ -8,3 +8,5 @@
 == bugs
 
 - handle inspecting undefined
+- handle displaying "storage" (see window.menubar in FF)
+- displaying function code
