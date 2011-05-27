@@ -326,7 +326,7 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
   // thank you Jon Combe
   // blog post http://joncom.be/code/realtypeof/
   var realTypeOf = function(v) {
-    if (typeof(v) == "object" || typeof(v) == "function") {
+    if (typeof(v) == "object" || typeof(v) == "function") { // modified to include "function" (for Google Chrome at least, typeof(new RegExp) is "function")
       if (v === null) return "null";
       if (v.constructor == (new Array).constructor) return "array";
       if (v.constructor == (new Date).constructor) return "date";
