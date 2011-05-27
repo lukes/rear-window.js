@@ -1,7 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!doctype html>
+<html>
 <head>
   <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js'></script>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -78,7 +76,7 @@
 
 <script type="text/javascript" charset="utf-8">
 
-var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert(true) }, 'b': 0, 's': "hello", z: { i: 51, o: "goodmorning sir, \nhow goes it?", regex: new RegExp("hello!", "mips")} };
+var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert(true) }, 'b': 0, 's': "hello", z: { i: 51, o: "goodmorning sir, \nhow goes it?", regex: new RegExp("hello!", "gim")} };
 
 // TODO should I unbind every action before removing things from DOM?
 // TODO can rearwindow remember the last selected path, so on reload it selects what it was last looking at?
@@ -168,11 +166,16 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
 
     // used for tracking how much of each type of
     // property we have in the given object.
-    var type_count = { 'function': 0, 'object': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'undefined': 0 };
+    var type_count = { 'function': 0, 'object': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'storage': 0, 'undefined': 0 };
 
     // loop over properties in the given object
     for (var i in obj) {
-      var val = obj[i];
+      // bug in FF4.0.1 where window.storage object throws error when accessed as window['storage]
+      try {
+        var val = obj[i]; 
+      } catch (e) {
+        continue; // ignore and go on to next item
+      }
       var type = realTypeOf(val);
       // add this property to our array
       properties.push({
@@ -315,7 +318,7 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
   }
 
   var removeClass = function(elem, class_name) {
-    var regex = new RegExp(class_name, "gims");
+    var regex = new RegExp(class_name, "gim");
     elem.className = elem.className.replace(regex, '');
   }
 
@@ -326,12 +329,17 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
   // thank you Jon Combe
   // blog post http://joncom.be/code/realtypeof/
   var realTypeOf = function(v) {
-    if (typeof(v) == "object" || typeof(v) == "function") { // modified to include "function" (for Google Chrome at least, typeof(new RegExp) is "function")
+    if (typeof(v) == "object") {
       if (v === null) return "null";
       if (v.constructor == (new Array).constructor) return "array";
       if (v.constructor == (new Date).constructor) return "date";
       if (v.constructor == (new RegExp).constructor) return "regex";
+      if (typeof(Storage) != "undefined" && v.constructor == Storage.constructor) return "storage"; // modified to add Storage object
       return "object";
+    }
+    if (typeof(v) == "function") { // modified to include "function" (for Google Chrome at least, typeof(new RegExp) is "function")
+      if (v.constructor == (new RegExp).constructor) return "regex";
+      return "function";
     }
     return typeof(v);
   }
