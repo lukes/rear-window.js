@@ -88,8 +88,8 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
   var initial_obj = 'window';
   var rearwindow;
 
-  // event management ( thanks John Resig )
-  // via blackbird.js http://www.gscottolson.com/blackbirdjs/
+  // event management (thanks John Resig)
+  // via blackbird.js http://www.gscottolson.com/blackbirdjs/ (thanks G. Scott Olson)
   addEvent = function ( obj, type, fn ) {
     var obj = ( obj.constructor === String ) ? document.getElementById( obj ) : obj;
     if ( obj.attachEvent ) {
@@ -323,7 +323,8 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
     return !!elem.className.match(class_name);
   }
 
-  // from http://joncom.be/code/realtypeof/
+  // thank you Jon Combe
+  // blog post http://joncom.be/code/realtypeof/
   var realTypeOf = function(v) {
     if (typeof(v) == "object" || typeof(v) == "function") {
       if (v === null) return "null";
