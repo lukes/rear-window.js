@@ -2,6 +2,8 @@
 
 - when item is selected, and RW is focused, enable key navigation
 - allow specifying what object to being inspecting
+- realtime watching, show changes dynamically
+- plugins for main JS libraries, to add their unique property types, and also event listeners (?)
 
 == bugs
 
