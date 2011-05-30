@@ -6,4 +6,4 @@
 
 == bugs
 
-- handle displaying "storage" (see window.menubar in FF)
+- handle displaying "storage" (see window.menubar, window.sessionStorage in FF)
