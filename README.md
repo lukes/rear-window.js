@@ -24,18 +24,8 @@ Rear Window supports and inspects:
 * Date
 * Strings, Numbers, Booleans, and null and undefined variables
 
-### ?
+### He Aha? / ¿Que?
 
 #### What is a Native Function? 
 
 This is when the function is written in something like C, in the JavaScript engine itself, rather than is implemented in JavaScript code. To inspect these functions you'll need to view the uncompiled source code of your browser.
-
-### Known Issues
-
-#### Firefox
-
-* Unable to access `window.sessionStorage` from a file URI (although `window.localStorage` works), so this variable won't show in this circumstance
-
-#### All
-
-* No support for Audio, 
