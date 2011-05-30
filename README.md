@@ -8,8 +8,10 @@ Based on Mac "Column View"
 
 ![Screen Cap](https://github.com/lukes/rear-window.js/raw/master/screen.png)
 
+### Usage
+
     Rear()
-    Rear('var')
+    Rear('var') // inspect this variable
 
 Rear Window supports and inspects:
 
@@ -17,5 +19,23 @@ Rear Window supports and inspects:
 * Non-native functions
 * Web Storage
 * Multidimensional arrays
+* Regular expressions
+* Audio objects
+* Date
+* Strings, Numbers, Booleans, and null and undefined variables
 
-I see `functiom [native code]` when viewing a function. This is when the function call is written in something like C, in the JavaScript engine itself, rather than is implemented in JavaScript code. To inspect these functions you'll need to view the uncompiled source code of your browser.
+### ?
+
+#### What is a Native Function? 
+
+This is when the function is written in something like C, in the JavaScript engine itself, rather than is implemented in JavaScript code. To inspect these functions you'll need to view the uncompiled source code of your browser.
+
+### Known Issues
+
+#### Firefox
+
+* Unable to access `window.sessionStorage` from a file URI (although `window.localStorage` works), so this variable won't show in this circumstance
+
+#### All
+
+* No support for Audio, 
