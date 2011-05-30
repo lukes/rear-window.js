@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>Rear Window Demo</title>
+	
+</head>
+
+<body>
+
+<script type="text/javascript" charset="utf-8" src="../lib/rear-window-0.1.min.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+var _big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert(true) }, 'b': 0, 's': "hello", z: { i: 51, o: "goodmorning sir, \nhow goes it?", regex: new RegExp("hello!", "gim")} };
+
+var _hard_obj = [[1, 2, {x:0}], 3];
+
+var _audio = new Audio("file.mp3");
+
+Rear('_big_obj'); // load Rear Window
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>Rear Window Demo</title>
+	
+  <style type="text/css" media="screen">
+  #rear-window {
+    background-color: white;
+    line-height: 12px;
+    font-weight: normal;
+    font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+    font-size: 12px;
+    color: black;
+  }
+  #rear-window ul {
+    margin: 0;
+    padding: 0;
+  }
+  #rear-window ul li {
+    list-style: none;
+    padding: 2px;
+    cursor: default;
+  }
+  #rear-window .column {
+     float: left;
+     overflow-y: scroll; /* auto */
+     overflow-x: hidden;
+     padding: 2px;
+     min-width: 150px;
+     height: 205px;
+   }
+   #rear-window .column .variable {
+     background-color: #fff4d1;
+     height: 100%;
+   }
+   #rear-window .column .variable #type {
+     font-style: italic;
+     text-align: center;
+     border-bottom: 1px solid #aaa;
+     padding: 2px 0;
+   }
+   #rear-window .column .variable #value {
+     font-family: 'Lucida Console', 'Monaco', monospace;
+     margin-top: 10px;
+   }
+   #rear-window li.category {
+     background-color: #e5edfc;
+   }
+   #rear-window li.selected {
+     background-color: #3838ff;
+     color: white;
+   }
+   #rear-window .count {
+     font-family:arial;
+     white-space:nowrap;
+     padding:1px 4px;
+     margin-top:-2px;
+     margin-right:4px;
+     text-align:left;
+     line-height:normal;
+     font-weight:bold;
+     font-size: 11px;
+     border-radius:7px;
+     background-color:#8097bd;
+     color:white;
+     float: right;
+   }
+  </style>
+	
+</head>
+
+<body>
+
+<script type="text/javascript" charset="utf-8" src="../lib/rear-window-0.1.min.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+var _big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert(true) }, 'b': 0, 's': "hello", z: { i: 51, o: "goodmorning sir, \nhow goes it?", regex: new RegExp("hello!", "gim")} };
+
+var _hard_obj = [[1, 2, {x:0}], 3];
+
+var _audio = new Audio("file.mp3");
+
+Rear(); // load Rear Window
+
+</script>
+
+</body>
+</html>
