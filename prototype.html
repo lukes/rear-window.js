@@ -79,6 +79,8 @@ var _big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { aler
 
 var _hard_obj = [[1, 2, {x:0}], 3];
 
+var _audio = new Audio("file.mp3");
+
 // TODO should I unbind every action before removing things from DOM?
 // TODO can rearwindow remember the last selected path, so on reload it selects what it was last looking at?
 
@@ -155,6 +157,8 @@ Rear = function(initial_object) {
         return JSON.stringify(v);
       case 'object':
         return JSON.stringify(v);
+      case 'audio':
+        return JSON.stringify({autoplay: v.autoplay, controls: v.controls, loop: v.loop, preload: v.preload, src: v.src}); 
       default:
         return v.toString();
     }
@@ -175,7 +179,7 @@ Rear = function(initial_object) {
 
     // used for tracking how much of each type of
     // property we have in the given object.
-    var type_count = { 'function': 0, 'object': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'storage': 0, 'undefined': 0, 'native function': 0 };
+    var type_count = { 'function': 0, 'object': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'storage': 0, 'audio': 0, 'undefined': 0, 'native function': 0 };
 
     // loop over properties in the given object
     for (var i in obj) {
@@ -348,6 +352,7 @@ Rear = function(initial_object) {
       if (v.constructor == (new Array).constructor) return 'array';
       if (v.constructor == (new Date).constructor) return 'date';
       if (v.constructor == (new RegExp).constructor) return 'regex';
+      if (v.constructor == (new Audio).constructor) return 'audio';
       // modified to add Storage object
       // it seems impossible to tell a Storage object from a regular object, 
       // so test for storage objects the long way
