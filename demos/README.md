@@ -1,3 +1,11 @@
+## Demos
+
+To run the demos
+
+    git clone git://github.com/lukes/rear-window.js.git
+
+Open the files in the `/demos` directory in a browser
+
 ### simple.html
 
 Filename suggests it's simple.
