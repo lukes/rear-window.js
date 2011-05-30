@@ -22,3 +22,10 @@ Start Rear-Window.js on a particular variable.
     
     // load Rear Window
     Rear('_big_obj');
+    
+### custom-css.html
+
+Choose your own CSS.
+
+    Rear({css: 'path/to/myown.css'});
+    Rear('my_var', {css: 'path/to/myown.css'}); // initialising with a chosen variable
