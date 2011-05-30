@@ -1,1 +1,0 @@
-The /dev folder is Github-specific, or notes for myself, and shouldn't be particularly interesting

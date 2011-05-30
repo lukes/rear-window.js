@@ -26,4 +26,4 @@ Rear Window supports and inspects:
 
 #### You have a "Native Function" variable type?
 
-This is when the function is written in something like C, in the JavaScript engine itself, rather than is implemented in JavaScript code. To inspect these functions you'll need to view the uncompiled browser's source code.
+This is when the function is written in something like C, in the JavaScript engine itself, rather than is implemented in JavaScript code. To inspect these functions you'll need to view the uncompiled browser's source code. Rear Window will just let you know they're there.
