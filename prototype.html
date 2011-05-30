@@ -1,7 +1,6 @@
 <!doctype html>
 <html>
 <head>
-  <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js'></script>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
 	<title>untitled</title>
@@ -76,15 +75,14 @@
 
 <script type="text/javascript" charset="utf-8">
 
-var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert(true) }, 'b': 0, 's': "hello", z: { i: 51, o: "goodmorning sir, \nhow goes it?", regex: new RegExp("hello!", "gim")} };
+var _big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert(true) }, 'b': 0, 's': "hello", z: { i: 51, o: "goodmorning sir, \nhow goes it?", regex: new RegExp("hello!", "gim")} };
+
+var _hard_obj = [[1, 2, {x:0}], 3];
 
 // TODO should I unbind every action before removing things from DOM?
 // TODO can rearwindow remember the last selected path, so on reload it selects what it was last looking at?
 
-(function() {
-  var NAMESPACE = 'rear';
-  var initial_obj = 'window';
-  var rearwindow;
+Rear = function(initial_object) {
 
   // event management (thanks John Resig)
   // via blackbird.js http://www.gscottolson.com/blackbirdjs/ (thanks G. Scott Olson)
@@ -104,19 +102,9 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
     } else obj.removeEventListener( type, fn, false );
   }
 
-  // initial rearwindow HTML
-  // todo add in CSS dynamically, allowing user to provide their own
-  initDOM = function(obj) {
-    var e = document.createElement('div');
-    e.id = 'rear-window';
-    e.innerHTML = ['<div class="column focus"><ul><li class="selected">', obj, '</li></ul></div>'].join('');
-    e.appendChild(addColumn(obj));
-    return e;
-  }
-
   // called when a new column is added to DOM
-  addColumn = function(obj) {
-    if (typeof(obj) == "string") obj = eval(obj);
+  addColumn = function(v) {
+    if (typeof(v) == "string") v = eval(v);
     var e = document.createElement("div");
     addClass(e, 'column');
 
@@ -125,35 +113,56 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
     // (whose properties should be listed in the column)
     // or a variable (whose value should be displayed)
 
-    var type = realTypeOf(obj);
+    var type = realTypeOf(v);
     if (type == 'object') { // if this is an object that has properties
-      contents = columnForObject(obj);
+      contents = columnForObject(v);
     } else {
-      contents = columnForVar(obj, type);
+      contents = columnForVar(v, type);
     }
 
     e.appendChild(contents);
     return e;
   }
 
-  // todo properly handle arrays with objects inside them,
-  // and multdimensional arrays
-  // like [[1, 2, {x:0}], 3]
+  // todo properly handle:
+  // - arrays with objects inside them,
+  // - multdimensional arrays like [[1, 2, {x:0}], 3]
   var columnForVar = function(obj, type) {
     var div = document.createElement("div");
     addClass(div, 'variable');
-    if (obj === null) {
-      value = 'null';
-    } else {
-      var value = obj.toString();
-      if (type == 'array') {
-        value = ['[', value, ']'].join('');
-      } else if (type == 'string') {
-        value = ['"', value, '"'].join('')
-      }      
-    }
+    var value = inspectVar(obj);
     div.innerHTML = ['<div id="type">', type, '</div><div id="value">', value, '</div>'].join('');
     return div;
+  }
+  
+  var inspectVar = function(v) {
+    var type = realTypeOf(v);
+    switch(type) {
+      case 'array':
+        var s = []; // elements of this array will be pushed into s
+        for (var i=0;i<v.length;i++) {
+          s.push(inspectVar(v[i])); // call this method again
+        }
+        s = s.join(',');
+        return ['[', s, ']'].join('');
+      case 'string':
+        return ['"', s, '"'].join('');
+      case 'undefined':
+        return 'undefined';
+      case 'null':
+        return 'null';
+      case 'storage':
+        return JSON.stringify(v);
+      case 'object':
+        return JSON.stringify(v);
+      default:
+        return v.toString();
+    }
+  }
+  
+  // can be recursively called to walk through 
+  // multidimenstional arrays
+  var inspectArray = function(a) {
   }
 
   // display the properties of the object
@@ -166,7 +175,7 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
 
     // used for tracking how much of each type of
     // property we have in the given object.
-    var type_count = { 'function': 0, 'object': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'storage': 0, 'undefined': 0 };
+    var type_count = { 'function': 0, 'object': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'storage': 0, 'undefined': 0, 'native function': 0 };
 
     // loop over properties in the given object
     for (var i in obj) {
@@ -296,9 +305,14 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
       var obj = eval(dotPath.join('.')); // obj becomes the selected object property tree
       var mock_obj = {};
       for (i in obj) {
-        var val = obj[i];
-        if (realTypeOf(val) == category) { // if property matches category
-          mock_obj[i] = val; // add this to mock_obj
+        // FF 4.0.1 has a bug when accessing window.sessionStorage as window['sessionStorage']
+        try {
+          var val = obj[i];
+          if (realTypeOf(val) == category) { // if property matches category
+            mock_obj[i] = val; // add this to mock_obj
+          }          
+        } catch (e) {
+          // do nothing
         }
       }
       rearwindow.appendChild(addColumn(mock_obj)); // build a column for mock_obj
@@ -329,35 +343,71 @@ var big_obj = { 'n': 100, 'nan': NaN, 'x': [1, 2, 3, 4], 'y': function() { alert
   // thank you Jon Combe
   // blog post http://joncom.be/code/realtypeof/
   var realTypeOf = function(v) {
-    if (typeof(v) == "object") {
-      if (v === null) return "null";
-      if (v.constructor == (new Array).constructor) return "array";
-      if (v.constructor == (new Date).constructor) return "date";
-      if (v.constructor == (new RegExp).constructor) return "regex";
-      if (typeof(Storage) != "undefined" && v.constructor == Storage.constructor) return "storage"; // modified to add Storage object
-      return "object";
+    if (typeof(v) == 'object') {
+      if (v === null) return 'null';
+      if (v.constructor == (new Array).constructor) return 'array';
+      if (v.constructor == (new Date).constructor) return 'date';
+      if (v.constructor == (new RegExp).constructor) return 'regex';
+      // modified to add Storage object
+      // it seems impossible to tell a Storage object from a regular object, 
+      // so test for storage objects the long way
+      if (typeof(localStorage) != 'undefined' && v == localStorage) return 'storage';
+      try {
+         if (typeof(sessionStorage) != 'undefined' && v == sessionStorage) return 'storage';
+      } catch (e) {
+          // when accessing sessionStorage from a file url we get 
+          // NS_ERROR_DOM_NOT_SUPPORTED_ERR on FF
+          return 'object';
+      }
+      // otherwise
+      return 'object';
     }
-    if (typeof(v) == "function") { // modified to include "function" (for Google Chrome at least, typeof(new RegExp) is "function")
-      if (v.constructor == (new RegExp).constructor) return "regex";
-      return "function";
+    if (typeof(v) == 'function') { // modified to include "function" (for Google Chrome at least, typeof(new RegExp) is "function")
+      if (v.constructor == (new RegExp).constructor) return 'regex';
+      if (v.toString().match(/\[native\scode\]/)) return 'native function';
+      return 'function';
     }
     return typeof(v);
   }
 
-  // bootstrap
-  var init = function() {
-    // create initial rearwindow wrapper		
-    rearwindow = initDOM(initial_obj);	
-    var body = document.getElementsByTagName('BODY')[0];
-    body.appendChild(rearwindow);	  
+  // sets up initial two columns
+  var init = function(obj) {
+    // create rearwindow DOM
+    // TODO load CSS dynamically, allowing for user to specify their own
+    // first column
+    var e = document.createElement('div');
+    e.id = 'rear-window';
+    e.innerHTML = ['<div class="column focus"><ul><li class="selected">', obj, '</li></ul></div>'].join('');
+    // list properties of obj (second column)
+    e.appendChild(addColumn(obj));
+    // add to DOM
+    var body = document.getElementsByTagName('body')[0];
+    body.appendChild(e);
+    // provide a var we can refer to for manipulation and traversal of rear window later
+    window['rearwindow'] = e;
   }
 
-  window[NAMESPACE] = {
-    init: init(),
-    rearwindow: rearwindow
-  };		
+  // bootstrap:
 
-  })();
+  // if rear window has already been loaded
+  // remove the old before continuing
+  // TODO - should i remove bound events first?
+  if (typeof(window['rearwindow']) != 'undefined') {
+    var body = document.getElementsByTagName('body')[0];
+    body.removeChild(window['rearwindow']);
+  }
+
+  // if no initial object to inspect passed as param
+  // then default to window
+  if (typeof(initial_object) == 'undefined') {
+    initial_object = 'window';
+  }
+
+  init(initial_object);
+
+}
+
+Rear();
 
 </script>
 
