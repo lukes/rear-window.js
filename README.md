@@ -21,11 +21,9 @@ Rear Window supports and inspects:
 * Multidimensional arrays
 * Regular expressions
 * Audio objects
-* Date
-* Strings, Numbers, Booleans, and null and undefined variables
 
 ### Eh?
 
-#### What are Native Functions? 
+#### Native Functions? 
 
-This is when the function is written in something like C, in the JavaScript engine itself, rather than is implemented in JavaScript code. To inspect these functions you'll need to view the uncompiled source code of your browser.
+This is when the function is written in something like C, in the JavaScript engine itself, rather than is implemented in JavaScript code. To inspect these functions you'll need to view the uncompiled browser's source code.
