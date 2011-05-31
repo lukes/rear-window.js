@@ -1,10 +1,17 @@
 #rear-window {
-  background-color: white;
   line-height: 12px;
   font-weight: normal;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
   font-size: 12px;
   color: black;
+  position: absolute;
+  z-index: 99999;
+  top: 20px;
+  left: 50px;
+  padding: 7px;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  box-shadow: 2px 2px 10px #999;
 }
 #rear-window ul {
   margin: 0;
@@ -16,13 +23,14 @@
   cursor: default;
 }
 #rear-window .column {
-   float: left;
-   overflow-y: scroll; /* auto */
-   overflow-x: hidden;
-   padding: 2px;
-   min-width: 150px;
-   height: 205px;
- }
+  float: left;
+  overflow-y: scroll; /* auto */
+  overflow-x: hidden;
+  padding: 2px;
+  min-width: 150px;
+  height: 205px;
+  background-color: white;  
+}
  #rear-window .column .variable {
    background-color: #fff4d1;
    height: 100%;
