@@ -22,4 +22,9 @@ Rear Window supports and inspects:
 * Regular expressions
 * Audio objects
 
-For more, see [the wiki](wiki).
+For more, see [the wiki](https://github.com/lukes/rear-window.js/wiki).
+
+### Download
+
+Latest compressed version: https://github.com/lukes/rear-window.js/raw/master/lib/rear-window.js
+Source: https://github.com/lukes/rear-window.js/master/lib/rear-window.js
