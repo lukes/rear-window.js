@@ -59,3 +59,12 @@
    color:white;
    float: right;
  }
+ 
+/* 
+ * Used to determine in rear-window.js when CSS has been loaded
+ * It's a bit of a hack, from http://stackoverflow.com/questions/3078584/link-element-onload
+ * If you ever override this CSS with your custom CSS, keep this last definition as is.
+ */
+#rear-window-cssloaded {
+  display: none;
+}
