@@ -14,21 +14,13 @@
   border-radius: 3px;
   box-shadow: 2px 2px 10px #999;
 }
-#rear-window ul {
-  margin: 0;
-  padding: 0;
-}
-#rear-window ul li {
-  list-style: none;
-  padding: 2px;
-  cursor: pointer;
-}
 #rear-window .column {
   float: left;
   overflow-y: scroll; /* auto */
   overflow-x: hidden;
   min-width: 150px;
-  height: 205px;
+  max-width: 700px;
+  height: 306px;
   background-color: white;  
 }
  #rear-window .column .variable {
@@ -44,6 +36,15 @@
  #rear-window .column .variable #value {
    font-family: 'Lucida Console', 'Monaco', monospace;
    margin-top: 10px;
+ }
+ #rear-window ul {
+   margin: 0;
+   padding: 0;
+ }
+ #rear-window ul li {
+   list-style: none;
+   padding: 2px;
+   cursor: pointer;
  }
  #rear-window li.category {
    background-color: #e5edfc;
@@ -76,6 +77,6 @@
  * It's a bit of a hack, from http://stackoverflow.com/questions/3078584/link-element-onload
  * If you ever override this CSS with your custom CSS, keep this last definition as is.
  */
-#rear-window-cssloaded {
+#rear-window-cssloading {
   display: none;
 }

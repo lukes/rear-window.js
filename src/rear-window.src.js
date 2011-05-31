@@ -216,6 +216,7 @@ Rear = function(initial_object, options) {
     // if a variable property was clicked, we pass the object property tree
     // to that variable
 
+    var new_column;
     if (type == "category") { // if item clicked was a category
       // find all objects that match this category type, and add a column;
       var obj = eval(dotPath.join('.')); // obj becomes the selected object property tree
@@ -231,13 +232,32 @@ Rear = function(initial_object, options) {
           // do nothing
         }
       }
-      rearwindow.appendChild(addColumn(mock_obj)); // build a column for mock_obj
+      new_column = addColumn(mock_obj);
     } else { // item clicked on was a variable
       // dotPath becomes the selected object property tree, plus the currently selected variable
       dotPath.push(this.innerHTML);
-      rearwindow.appendChild(addColumn(dotPath.join('.')));
+      new_column = addColumn(dotPath.join('.'));
     }
+    
+    // add this new column
+    rearwindow.appendChild(new_column);
+    resize();
+
   }	
+
+  var resize = function() {
+    var width = 0;
+    var columns = rearwindow.getElementsByTagName('div');
+    // loop through columns in the DOM
+    for (var i=0;i<columns.length;i++) {
+      var column = columns[i];
+      if (!hasClass(column, 'column')) continue;
+      var styles = column.currentStyle || getComputedStyle(column, null);
+      width += (parseInt(styles.width) + window.scrollBarWidth); // TODO this buffer seems to be unneccessary for FF
+      console.log(parseInt(styles.width));
+    }
+    rearwindow.style.width = [width, 'px'].join('');
+  }
 
   /* utilities */
 
@@ -295,27 +315,41 @@ Rear = function(initial_object, options) {
     setTimeout(function listener(){
       var el = document.getElementById(id),
       comp = el.currentStyle || getComputedStyle(el, null);
-      if (comp.display === 'none')
-        callback();
+      if (comp.display === 'none') {
+        document.body.removeChild(el);
+        callback(); 
+      }
       else 
         setTimeout(listener, 50);
     }, 50);
   }
+  
+  // thank you josh stodola
+  // from http://stackoverflow.com/questions/986937/javascript-get-the-browsers-scrollbar-sizes
+  // not always reliable, but good enough for now
+  window.scrollBarWidth = function() {
+    document.body.style.overflow = 'hidden'; 
+    var width = document.body.clientWidth;
+    document.body.style.overflow = 'scroll'; 
+    width -= document.body.clientWidth; 
+    if(!width) width = document.body.offsetWidth - document.body.clientWidth;
+    document.body.style.overflow = ''; 
+    return width;
+  }(); // modified to evaluate straight away
 
   // sets up initial two columns
   var init = function(obj) {
     // create rearwindow DOM
     // TODO load CSS dynamically, allowing for user to specify their own
     // first column
-    var body = document.getElementsByTagName('body')[0];
     var e = document.createElement('div');
     e.id = 'rear-window';
-    e.style.top = [body.scrollTop + 20, 'px'].join('');
+    e.style.top = [document.body.scrollTop + 20, 'px'].join('');
     e.innerHTML = ['<div class="column focus"><ul><li class="selected">', obj, '</li></ul></div>'].join('');
     // list properties of obj (second column)
     e.appendChild(addColumn(obj));
     // add to DOM
-    body.appendChild(e);
+    document.body.appendChild(e);
     // provide a var for this DOM that for later manipulation and traversal
     window.rearwindow = e;
   }
@@ -326,12 +360,11 @@ Rear = function(initial_object, options) {
   // remove the old before continuing
   // TODO - should i remove bound events first?
   if (typeof(window.rearwindow) != 'undefined') {
-    var body = document.getElementsByTagName('body')[0];
-    body.removeChild(window.rearwindow);
+    document.body.removeChild(window.rearwindow);
     // remove loaded css, to allow for reloading
     var old_css;
     if(old_css = document.getElementById('rear-window-css')) {
-      body.removeChild(old_css);
+      document.body.removeChild(old_css);
     }
   }
 
@@ -350,11 +383,10 @@ Rear = function(initial_object, options) {
   css.rel = 'stylesheet';
   css.href = css_href;
   css.type = 'text/css';
-  var body = document.getElementsByTagName('body')[0];    
-  body.appendChild(css); // TODO reliable way of inserting into head?
+  document.body.appendChild(css); // TODO reliable way of inserting into head?
   var cssloader = document.createElement('div');
-  cssloader.id = 'rear-window-cssloaded';
-  body.appendChild(cssloader);
+  cssloader.id = 'rear-window-cssloading';
+  document.body.appendChild(cssloader);
   
   // if no initial object to inspect passed as param
   // then default to window
@@ -363,7 +395,7 @@ Rear = function(initial_object, options) {
   }
   
   // when CSS has loaded, initialise the Rear Window DOM
-  cssOnload('rear-window-cssloaded', function() {
+  cssOnload('rear-window-cssloading', function() {
     init(initial_object);
   });
 
