@@ -11,7 +11,7 @@ Based on Mac "Column View"
 ### Download
 
 * [Latest version](https://github.com/lukes/rear-window.js/raw/master/lib/rear-window.js) (compressed)
-* [Uncompressed source](https://github.com/lukes/rear-window.js/raw/master/lib/rear-window.src.js)
+* [Uncompressed source](https://github.com/lukes/rear-window.js/raw/master/src/rear-window.src.js)
 
 ### Usage
 
