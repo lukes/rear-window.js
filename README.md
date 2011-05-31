@@ -15,8 +15,8 @@ Based on Mac "Column View"
 
 ### Usage
 
-    Rear()
-    Rear('var') // inspect this variable
+    Rear();
+    Rear('var'); // inspect this variable
 
 Rear Window supports and inspects:
 
