@@ -9,6 +9,7 @@
   top: 20px;
   left: 50px;
   padding: 7px;
+  background-color: white;
   border: 1px solid #aaa;
   border-radius: 3px;
   box-shadow: 2px 2px 10px #999;
@@ -20,13 +21,12 @@
 #rear-window ul li {
   list-style: none;
   padding: 2px;
-  cursor: default;
+  cursor: pointer;
 }
 #rear-window .column {
   float: left;
   overflow-y: scroll; /* auto */
   overflow-x: hidden;
-  padding: 2px;
   min-width: 150px;
   height: 205px;
   background-color: white;  
@@ -47,6 +47,9 @@
  }
  #rear-window li.category {
    background-color: #e5edfc;
+ }
+ #rear-window li:hover {
+   background-color: #FFF4D1;
  }
  #rear-window li.selected {
    background-color: #3838ff;
