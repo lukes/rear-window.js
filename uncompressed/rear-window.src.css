@@ -36,6 +36,7 @@
  #rear-window .column .variable #value {
    font-family: 'Lucida Console', 'Monaco', monospace;
    margin-top: 10px;
+   line-height: 20px;
  }
  #rear-window ul {
    margin: 0;
@@ -44,6 +45,7 @@
  #rear-window ul li {
    list-style: none;
    padding: 2px;
+   margin: 1px 0;
    cursor: pointer;
  }
  #rear-window li.category {
@@ -60,7 +62,6 @@
    font-family:arial;
    white-space:nowrap;
    padding:1px 4px;
-   margin-top:-2px;
    margin-right:4px;
    text-align:left;
    line-height:normal;
