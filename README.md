@@ -26,5 +26,3 @@ Rear Window supports and inspects:
 * Audio objects
 
 For more, see [the wiki](https://github.com/lukes/rear-window.js/wiki).
-
->Oh dear, we've become a race of Peeping Toms. What people ought to do is get outside their own house and look in for a change. Yes, sir. How's that for a bit of home-spun philosophy?
