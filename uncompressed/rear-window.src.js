@@ -159,7 +159,7 @@ Rear = function(initial_object, options) {
     var parent = this.parentNode;
 
     // clicked column receives focus class
-    var columns = rearwindow.getElementsByTagName("div");
+    var columns = rearwindow.columns.getElementsByTagName("div");
     // dotPath will track the object tree (?)
     var dotPath = [];
     // remove_column flag tells us at what point, if any, 
@@ -176,7 +176,7 @@ Rear = function(initial_object, options) {
       // if remove_column is true, delete this
       // TODO should i unbind events before removing?
       if (remove_column) {
-        rearwindow.removeChild(column);
+        rearwindow.columns.removeChild(column);
         i--; // decrement i, as there's one less column in the DOM now
         continue; // skip to next in loop
       }
@@ -240,14 +240,14 @@ Rear = function(initial_object, options) {
     }
     
     // add this new column
-    rearwindow.appendChild(new_column);
+    rearwindow.columns.appendChild(new_column);
     resize();
 
   }	
 
   var resize = function() {
     var width = 0;
-    var columns = rearwindow.getElementsByTagName('div');
+    var columns = rearwindow.column.getElementsByTagName('div');
     // loop through columns in the DOM
     for (var i=0;i<columns.length;i++) {
       var column = columns[i];
@@ -256,7 +256,7 @@ Rear = function(initial_object, options) {
       width += (parseInt(styles.width) + window.scrollBarWidth); // TODO this buffer seems to be unneccessary for FF
       console.log(parseInt(styles.width));
     }
-    rearwindow.style.width = [width, 'px'].join('');
+    rearwindow.all.style.width = [width, 'px'].join('');
   }
 
   /* utilities */
@@ -343,15 +343,16 @@ Rear = function(initial_object, options) {
     // TODO load CSS dynamically, allowing for user to specify their own
     // first column
     var e = document.createElement('div');
-    e.id = 'rear-window';
+    e.id = 'rw';
     e.style.top = [document.body.scrollTop + 20, 'px'].join('');
-    e.innerHTML = ['<div class="column focus"><ul><li class="selected">', obj, '</li></ul></div>'].join('');
+    e.innerHTML = ['<div id="rw-head"></div><div id="rw-columns"><div class="column focus"><ul><li class="selected">', obj, '</li></ul></div></div>'].join('');
     // list properties of obj (second column)
-    e.appendChild(addColumn(obj));
+//    e.appendChild(addColumn(obj));
     // add to DOM
     document.body.appendChild(e);
+    document.getElementById('rw-columns').appendChild(addColumn(obj)); // add first column
     // provide a var for this DOM that for later manipulation and traversal
-    window.rearwindow = e;
+    window.rearwindow = { head: document.getElementById('rw-head'), columns: document.getElementById('rw-columns'), all: e };
   }
 
   // bootstrap:
@@ -360,10 +361,10 @@ Rear = function(initial_object, options) {
   // remove the old before continuing
   // TODO - should i remove bound events first?
   if (typeof(window.rearwindow) != 'undefined') {
-    document.body.removeChild(window.rearwindow);
+    document.body.removeChild(window.rearwindow.all);
     // remove loaded css, to allow for reloading
     var old_css;
-    if(old_css = document.getElementById('rear-window-css')) {
+    if(old_css = document.getElementById('rw-cssloading')) {
       document.body.removeChild(old_css);
     }
   }
@@ -385,7 +386,7 @@ Rear = function(initial_object, options) {
   css.type = 'text/css';
   document.body.appendChild(css); // TODO reliable way of inserting into head?
   var cssloader = document.createElement('div');
-  cssloader.id = 'rear-window-cssloading';
+  cssloader.id = 'rw-cssloading';
   document.body.appendChild(cssloader);
   
   // if no initial object to inspect passed as param
@@ -395,7 +396,7 @@ Rear = function(initial_object, options) {
   }
   
   // when CSS has loaded, initialise the Rear Window DOM
-  cssOnload('rear-window-cssloading', function() {
+  cssOnload('rw-cssloading', function() {
     init(initial_object);
   });
 

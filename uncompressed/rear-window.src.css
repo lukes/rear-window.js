@@ -1,5 +1,5 @@
-#rear-window {
-  line-height: 12px;
+#rw {
+  line-height: 16px;
   font-weight: normal;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
   font-size: 12px;
@@ -8,13 +8,19 @@
   z-index: 99999;
   top: 20px;
   left: 50px;
+}
+#rw-head {
+  
+}
+#rw-columns {
   padding: 7px;
   background-color: white;
   border: 1px solid #aaa;
   border-radius: 3px;
   box-shadow: 2px 2px 10px #999;
+  height: 306px;
 }
-#rear-window .column {
+#rw .column {
   float: left;
   overflow-y: scroll; /* auto */
   overflow-x: hidden;
@@ -23,42 +29,42 @@
   height: 306px;
   background-color: white;  
 }
- #rear-window .column .variable {
+ #rw .column .variable {
    background-color: #fff4d1;
    height: 100%;
  }
- #rear-window .column .variable #type {
+ #rw .column .variable #type {
    font-style: italic;
    text-align: center;
    border-bottom: 1px solid #aaa;
    padding: 2px 0;
  }
- #rear-window .column .variable #value {
+ #rw .column .variable #value {
    font-family: 'Lucida Console', 'Monaco', monospace;
    margin-top: 10px;
    line-height: 20px;
  }
- #rear-window ul {
+ #rw ul {
    margin: 0;
    padding: 0;
  }
- #rear-window ul li {
+ #rw ul li {
    list-style: none;
    padding: 2px;
    margin: 1px 0;
    cursor: pointer;
  }
- #rear-window li.category {
+ #rw li.category {
    background-color: #e5edfc;
  }
- #rear-window li:hover {
+ #rw li:hover {
    background-color: #FFF4D1;
  }
- #rear-window li.selected {
+ #rw li.selected {
    background-color: #3838ff;
    color: white;
  }
- #rear-window .count {
+ #rw .count {
    font-family:arial;
    white-space:nowrap;
    padding:1px 4px;
@@ -78,6 +84,6 @@
  * It's a bit of a hack, from http://stackoverflow.com/questions/3078584/link-element-onload
  * If you ever override this CSS with your custom CSS, keep this last definition as is.
  */
-#rear-window-cssloading {
+#rw-cssloading {
   display: none;
 }
