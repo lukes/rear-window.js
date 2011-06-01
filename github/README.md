@@ -1,1 +1,1 @@
-This directory is Github-specific, or notes for myself, and shouldn't be particularly interesting
+This directory is Github-specific and shouldn't be particularly interesting
