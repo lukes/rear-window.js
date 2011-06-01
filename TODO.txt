@@ -1,11 +1,15 @@
-== features
+== need
 
 - close (/hide) button
-- make draggable
-- when item is selected, and RW is focused, enable key navigation
 - allow specifying what object to being inspecting
+
+== want
+
 - option to remove all common objects from inspector (probably by loading iframe and comparing list of variables), including storage if storage is empty
+- draggable
+- when item is selected, and RW is focused, enable key navigation
 - plugins for main JS libraries, to add their unique property types, and also event listeners (?)
+- see events (per JS library)
 
 == bugs
 
