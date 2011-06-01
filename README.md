@@ -1,10 +1,10 @@
 ### Rear-Window.js
 
-![Rear Window, Alfred Hitchcock, 1954](https://github.com/lukes/rear-window.js/raw/master/dev/rearwindow.jpg)
+![Rear Window, Alfred Hitchcock, 1954](https://github.com/lukes/rear-window.js/raw/master/github/rearwindow.jpg)
 
 Based on Mac "Column View"
 
-![Screen Cap](https://github.com/lukes/rear-window.js/raw/master/dev/screen.png)
+![Screen Cap](https://github.com/lukes/rear-window.js/raw/master/github/screen.png)
 
 ### Download
 
