@@ -1,8 +1,6 @@
-## Rear-Window.js
-
-Inspect your JavaScript objects
-
 ![Rear Window, Alfred Hitchcock, 1954](https://github.com/lukes/rear-window.js/raw/master/dev/rearwindow.jpg)
+
+## Rear-Window.js
 
 Based on Mac "Column View"
 
