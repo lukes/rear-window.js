@@ -1,3 +1,0 @@
-- Firefox
-
-  * Unable to access `window.sessionStorage` from a file URI (although `window.localStorage` works), so this variable won't show in this circumstance
