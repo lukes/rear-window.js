@@ -25,7 +25,7 @@ Rear = function(initial_object, options) {
   addColumn = function(v) {
     if (typeof(v) == "string") v = eval(v);
     var e = document.createElement("div");
-    addClass(e, 'column');
+    addClass(e, 'col');
 
     // delegate the drawing of the contents of the div
     // depending on if this column is for an object 
@@ -46,9 +46,10 @@ Rear = function(initial_object, options) {
   // print the inspection column for a variable
   var columnForVar = function(obj, type) {
     var div = document.createElement("div");
-    addClass(div, 'variable');
+    addClass(div, 'var');
     var value = inspectVar(obj);
-    div.innerHTML = ['<div id="type">', type, '</div><div id="value">', value, '</div>'].join('');
+    value = value.replace(/</gim, '&lt;').replace(/</gim, '&gt;'); // encode angle brackets
+    div.innerHTML = ['<div id="type">', type, '</div><div id="val">', value, '</div>'].join('');
     return div;
   }
   
@@ -127,7 +128,7 @@ Rear = function(initial_object, options) {
       if (type_count[type] == 0) continue; // skip this type (category) if given object had no properties of this type
       // building <li>
       var li = document.createElement("li");
-      li.className = "category";
+      li.className = "cat";
       li.innerHTML = ['<span class="count">', type_count[type], '</span> <span>', type, 's</span>'].join('');
       addEvent(li, 'click', itemClickEvent); // click event handler
       ul.appendChild(li);	    
@@ -148,12 +149,12 @@ Rear = function(initial_object, options) {
     // determine if item clicked was a category.
     // categories and actual properties will display
     // different things when clicked
-    if (hasClass(this, 'category')) {
-      var type = 'category';
+    if (hasClass(this, 'cat')) {
+      var type = 'cat';
       var category = this.getElementsByTagName("span")[1].innerHTML; // determine category name
       category = category.replace(/s$/, ''); // remove any 's' at the end of category name
     } else {
-      var type = 'variable';
+      var type = 'var';
     }
 
     var parent = this.parentNode;
@@ -198,7 +199,7 @@ Rear = function(initial_object, options) {
       for (var j=0;j<children.length;j++) { // for each <li> in this column
         var child = children[j];
         // if this <li> has selected class, but is not a category
-        if (hasClass(child, "selected") && !hasClass(child, 'category')) {
+        if (hasClass(child, "sel") && !hasClass(child, 'cat')) {
           dotPath.push(child.innerHTML); // add to dotPath
           break;
         } 
@@ -207,8 +208,8 @@ Rear = function(initial_object, options) {
 
     // the list item clicked should receive the "selected" class
     var siblings = parent.getElementsByTagName("li");
-    for (var i=0;i<siblings.length;i++) removeClass(siblings[i], "selected"); // remove selected from any siblings
-    addClass(this, "selected"); // add class to this
+    for (var i=0;i<siblings.length;i++) removeClass(siblings[i], "sel"); // remove selected from any siblings
+    addClass(this, "sel"); // add class to this
 
     // add a new column. we need to determine an object to pass to 
     // addColumn(). if this is a category, this will be a new object
@@ -217,7 +218,7 @@ Rear = function(initial_object, options) {
     // to that variable
 
     var new_column;
-    if (type == "category") { // if item clicked was a category
+    if (type == "cat") { // if item clicked was a category
       // find all objects that match this category type, and add a column;
       var obj = eval(dotPath.join('.')); // obj becomes the selected object property tree
       var mock_obj = {};
@@ -241,23 +242,23 @@ Rear = function(initial_object, options) {
     
     // add this new column
     rearwindow.columns.appendChild(new_column);
-    resize();
+//    resize();
 
   }	
 
-  var resize = function() {
+/*  var resize = function() {
     var width = 0;
-    var columns = rearwindow.column.getElementsByTagName('div');
+    var columns = rearwindow.columns.getElementsByTagName('div');
     // loop through columns in the DOM
     for (var i=0;i<columns.length;i++) {
       var column = columns[i];
-      if (!hasClass(column, 'column')) continue;
+      if (!hasClass(column, 'col')) continue;
       var styles = column.currentStyle || getComputedStyle(column, null);
       width += (parseInt(styles.width) + window.scrollBarWidth); // TODO this buffer seems to be unneccessary for FF
       console.log(parseInt(styles.width));
     }
     rearwindow.all.style.width = [width, 'px'].join('');
-  }
+  } */
 
   /* utilities */
 
@@ -327,7 +328,7 @@ Rear = function(initial_object, options) {
   // thank you josh stodola
   // from http://stackoverflow.com/questions/986937/javascript-get-the-browsers-scrollbar-sizes
   // not always reliable, but good enough for now
-  window.scrollBarWidth = function() {
+/*  window.scrollBarWidth = function() {
     document.body.style.overflow = 'hidden'; 
     var width = document.body.clientWidth;
     document.body.style.overflow = 'scroll'; 
@@ -335,7 +336,7 @@ Rear = function(initial_object, options) {
     if(!width) width = document.body.offsetWidth - document.body.clientWidth;
     document.body.style.overflow = ''; 
     return width;
-  }(); // modified to evaluate straight away
+  }(); // modified to evaluate straight away */
 
   // sets up initial two columns
   var init = function(obj) {
@@ -345,14 +346,14 @@ Rear = function(initial_object, options) {
     var e = document.createElement('div');
     e.id = 'rw';
     e.style.top = [document.body.scrollTop + 20, 'px'].join('');
-    e.innerHTML = ['<div id="rw-head"></div><div id="rw-columns"><div class="column focus"><ul><li class="selected">', obj, '</li></ul></div></div>'].join('');
+    e.innerHTML = ['<div id="rw-head"></div><div id="rw-cols"><div class="col focus"><ul><li class="sel">', obj, '</li></ul></div></div>'].join('');
     // list properties of obj (second column)
 //    e.appendChild(addColumn(obj));
     // add to DOM
     document.body.appendChild(e);
-    document.getElementById('rw-columns').appendChild(addColumn(obj)); // add first column
     // provide a var for this DOM that for later manipulation and traversal
-    window.rearwindow = { head: document.getElementById('rw-head'), columns: document.getElementById('rw-columns'), all: e };
+    window.rearwindow = { head: document.getElementById('rw-head'), columns: document.getElementById('rw-cols'), all: e };
+    rearwindow.columns.appendChild(addColumn(obj)); // add first column
   }
 
   // bootstrap:
