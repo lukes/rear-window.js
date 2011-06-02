@@ -22,7 +22,7 @@ Rear = function(initial_object, options) {
   }
 
   // called when a new column is added to DOM
-  var addColumn = function(v) {
+  var addColumn = function(v, skip_categories) {
     if (typeof(v) == "string") v = eval(v);
     var e = document.createElement("div");
     addClass(e, 'col');
@@ -34,7 +34,7 @@ Rear = function(initial_object, options) {
 
     var type = realTypeOf(v);
     if (type == 'object' || type == 'html element' || type == 'audio' || type == 'image') { // if this is an object that has properties
-      contents = columnForObject(v);
+      contents = columnForObject(v, skip_categories);
     } else {
       contents = columnForVar(v, type);
     }
@@ -88,7 +88,7 @@ Rear = function(initial_object, options) {
   
   // display the properties of the object
   // with categories at the top
-  var columnForObject = function(obj) {
+  var columnForObject = function(obj, skip_categories) {
     var ul = document.createElement("ul");
 
     // initialise array that will hold all properties for obj
@@ -128,14 +128,16 @@ Rear = function(initial_object, options) {
     // begin building our property list
 
     // add categories at top
-    for (type in type_count) { // loop over our type count array
-      if (type_count[type] == 0) continue; // skip this type (category) if given object had no properties of this type
-      // building <li>
-      var li = document.createElement("li");
-      li.className = "cat";
-      li.innerHTML = ['<span class="count">', type_count[type], '</span> <span>', type, 's</span>'].join('');
-      addEvent(li, 'click', itemClickEvent); // click event handler
-      ul.appendChild(li);	    
+    if (!skip_categories) {
+      for (type in type_count) { // loop over our type count array
+        if (type_count[type] == 0) continue; // skip this type (category) if given object had no properties of this type
+        // building <li>
+        var li = document.createElement("li");
+        li.className = "cat";
+        li.innerHTML = ['<span class="count">', type_count[type], '</span> <span>', type, 's</span>'].join('');
+        addEvent(li, 'click', itemClickEvent); // click event handler
+        ul.appendChild(li);	    
+      }      
     }
 
     // add properties of given object below categories
@@ -237,7 +239,7 @@ Rear = function(initial_object, options) {
           // do nothing
         }
       }
-      new_column = addColumn(mock_obj);
+      new_column = addColumn(mock_obj, true);
     } else { // item clicked on was a variable
       // dotPath becomes the selected object property tree, plus the currently selected variable
       dotPath.push(this.innerHTML);
@@ -342,6 +344,8 @@ Rear = function(initial_object, options) {
     document.body.removeChild(window.rearwindow.all);
   }
   
+  // TODO there's a lot of duplication between this and int()
+  // have a rethink
   var submitEvent = function() {
     // determine if variable is valid first
     var input = rearwindow.columns.getElementsByTagName('input')[0].value;
@@ -350,8 +354,20 @@ Rear = function(initial_object, options) {
       if (typeof(eval(input) != 'undefined')) valid = true;
     } catch(e) {}
     if (valid) {
-      rearwindow.all.removeChild(rearwindow.columns);
-      init(input);
+      var col = document.createElement('div');
+      addClass(col, 'col focus');
+      col.innerHTML = ['<ul><li class="sel">', input, '</li></ul>'].join('');
+      // TODO should i unbind events before removing columns?
+      // empty
+      for (var i=0;i<rearwindow.columns.children.length;) {
+        var old_col = rearwindow.columns.children[i];
+        rearwindow.columns.removeChild(old_col);
+      }
+      rearwindow.columns.appendChild(col);
+      rearwindow.columns.appendChild(addColumn(input));
+      // attach click event to our first object
+      var first_obj = window.rearwindow.columns.getElementsByTagName('li')[0];
+      addEvent(first_obj, 'click', chooseFirstObj);
     }
     else {
       alert([input, ' is undefined'].join(''));
