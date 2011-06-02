@@ -33,7 +33,7 @@ Rear = function(initial_object, options) {
     // or a variable (whose value should be displayed)
 
     var type = realTypeOf(v);
-    if (type == 'object') { // if this is an object that has properties
+    if (type == 'object' || type == 'html element') { // if this is an object that has properties
       contents = columnForObject(v);
     } else {
       contents = columnForVar(v, type);
@@ -75,6 +75,8 @@ Rear = function(initial_object, options) {
         return JSON.stringify(v);
       case 'object':
         return JSON.stringify(v);
+      case 'html element':
+        return v.innerHTML;
       case 'audio': // TODO have a rethink about this
         return JSON.stringify({autoplay: v.autoplay, controls: v.controls, loop: v.loop, preload: v.preload, src: v.src}); 
       default:
@@ -92,7 +94,7 @@ Rear = function(initial_object, options) {
 
     // used for tracking how much of each type of
     // property we have in the given object.
-    var type_count = { 'function': 0, 'object': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'storage': 0, 'audio': 0, 'undefined': 0, 'native function': 0 };
+    var type_count = { 'function': 0, 'object': 0, 'html element': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'storage': 0, 'audio': 0, 'undefined': 0, 'native function': 0 };
 
     // loop over properties in the given object
     for (var i in obj) {
@@ -292,12 +294,12 @@ Rear = function(initial_object, options) {
       // so test for storage objects the long way
       if (typeof(localStorage) != 'undefined' && v == localStorage) return 'storage';
       try {
-         if (typeof(sessionStorage) != 'undefined' && v == sessionStorage) return 'storage';
-      } catch (e) {
-          // when accessing sessionStorage from a file url we get 
-          // NS_ERROR_DOM_NOT_SUPPORTED_ERR on FF
-          return 'object';
-      }
+        // when accessing sessionStorage from a file url we get 
+        // NS_ERROR_DOM_NOT_SUPPORTED_ERR on FF
+        if (typeof(sessionStorage) != 'undefined' && v == sessionStorage) return 'storage';
+        // test if this object is a dom element
+        if (v.toString().match(/object\sHTML/)) return 'html element'; 
+      } catch (e) { } // do nothing
       // otherwise, this is an object (should always be equivalent of JSON)
       return 'object';
     }
