@@ -349,11 +349,13 @@ Rear = function(initial_object, options) {
     try {
       if (typeof(eval(input) != 'undefined')) valid = true;
     } catch(e) {}
-    if (valid) Rear(input);
+    if (valid) {
+      rearwindow.all.removeChild(rearwindow.columns);
+      init(input);
+    }
     else {
       alert([input, ' is undefined'].join(''));
     }
-    console.log(false);
     return false; // prevent submit
   }
   
@@ -368,7 +370,7 @@ Rear = function(initial_object, options) {
     form.innerHTML = ['<input type="text" value="', old_obj, '" autofocus="autofocus" />'].join('');
     this.innerHTML = '';
     this.appendChild(form);
-    form.onsubmit=submitEvent;
+    form.onsubmit = submitEvent;
   }
   
   // thank you josh stodola
