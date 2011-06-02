@@ -327,6 +327,11 @@ Rear = function(initial_object, options) {
     }, 50);
   }
   
+  // TODO should i unbind events first?
+  var closeEvent = function() {
+    document.body.removeChild(window.rearwindow.all);
+  }
+  
   // thank you josh stodola
   // from http://stackoverflow.com/questions/986937/javascript-get-the-browsers-scrollbar-sizes
   // not always reliable, but good enough for now
@@ -342,29 +347,39 @@ Rear = function(initial_object, options) {
 
   // sets up initial two columns
   var init = function(obj) {
-    // create rearwindow DOM
-    // TODO load CSS dynamically, allowing for user to specify their own
-    // first column
-    var e = document.createElement('div');
-    e.id = 'rw';
-    e.style.top = [document.body.scrollTop + 20, 'px'].join('');
-    e.innerHTML = ['<div id="rw-head"></div><div id="rw-cols"><div class="col focus"><ul><li class="sel">', obj, '</li></ul></div></div>'].join('');
-    // list properties of obj (second column)
-//    e.appendChild(addColumn(obj));
-    // add to DOM
-    document.body.appendChild(e);
+    // wrapper
+    var rw = document.createElement('div');
+    rw.id = 'rw';
+    rw.style.top = [document.body.scrollTop + 20, 'px'].join('');
+    // head
+    var head = document.createElement('div');
+    head.id = 'rw-head';
+    // close button
+    var b_close = document.createElement('img');
+    b_close.src = 'https://github.com/lukes/rear-window.js/raw/master/lib/close.png';
+    b_close.alt = 'Close';
+    addEvent(b_close, 'click', closeEvent);
+    head.appendChild(b_close);
+    rw.appendChild(head);
+    // columns
+    var cols = document.createElement('div');
+    cols.id = 'rw-cols';
+    cols.innerHTML = ['<div class="col focus"><ul><li class="sel">', obj, '</li></ul></div>'].join('');
+    // add first column
+    cols.appendChild(addColumn(obj));
+    rw.appendChild(cols);
+    // append to body
+    document.body.appendChild(rw);
     // provide a var for this DOM that for later manipulation and traversal
-    window.rearwindow = { head: document.getElementById('rw-head'), columns: document.getElementById('rw-cols'), all: e };
-    rearwindow.columns.appendChild(addColumn(obj)); // add first column
+    window.rearwindow = { head: head, columns: cols, all: rw };
   }
 
   // bootstrap:
 
   // if rear window has already been loaded
   // remove the old before continuing
-  // TODO - should i remove bound events first?
   if (typeof(window.rearwindow) != 'undefined') {
-    document.body.removeChild(window.rearwindow.all);
+    closeEvent();
     // remove loaded css, to allow for reloading
     var old_css;
     if(old_css = document.getElementById('rw-cssloading')) {
