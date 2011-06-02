@@ -308,11 +308,13 @@ Rear = function(initial_object, options) {
     }
     if (typeof(v) == 'function') {
       try {
+        if (v.toString().match(/\[native\scode\]/)) return 'native function';
+        if (v == (new Array).constructor) return 'constructor';
+        if (v == (new Date).constructor) return 'constructor';
         if (v == (new RegExp).constructor) return 'constructor';
         if (v == (new Audio).constructor) return 'constructor';
         if (v == (new Image).constructor) return 'constructor';
         if (v == (new Option).constructor) return 'constructor';
-        if (v.toString().match(/\[native\scode\]/)) return 'native function';        
       } catch(e) {}
       return 'function';
     }
