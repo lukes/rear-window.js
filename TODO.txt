@@ -1,10 +1,10 @@
 == need
 
-- close (/hide) button
 - allow specifying what object to being inspecting
 
 == want
 
+- hide button
 - option to remove all common objects from inspector (probably by loading iframe and comparing list of variables), including storage if storage is empty
 - draggable
 - when item is selected, and RW is focused, enable key navigation
@@ -13,4 +13,8 @@
 
 == bugs
 
+- when width of columns is too wide, columns get bumped to line below
 - handle displaying "storage" (see window.menubar, window.sessionStorage in FF)
+- background-color when viewing a long variable value scrolls
+- what's rearwindow > columns > objects > dataset ?
+- why is innerHTML always an empty string?
