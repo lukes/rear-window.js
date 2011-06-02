@@ -342,6 +342,35 @@ Rear = function(initial_object, options) {
     document.body.removeChild(window.rearwindow.all);
   }
   
+  var submitEvent = function() {
+    // determine if variable is valid first
+    var input = rearwindow.columns.getElementsByTagName('input')[0].value;
+    var valid = false;
+    try {
+      if (typeof(eval(input) != 'undefined')) valid = true;
+    } catch(e) {}
+    if (valid) Rear(input);
+    else {
+      alert([input, ' is undefined'].join(''));
+    }
+    console.log(false);
+    return false; // prevent submit
+  }
+  
+  // fired when first item in rear window is clicked,
+  // replaces clicked item with a textbox
+  var chooseFirstObj = function() {
+    // unbind old event
+    removeEvent(this, 'click', chooseFirstObj);
+    var old_obj = this.innerHTML;
+    // create form
+    var form = document.createElement('form');
+    form.innerHTML = ['<input type="text" value="', old_obj, '" autofocus="autofocus" />'].join('');
+    this.innerHTML = '';
+    this.appendChild(form);
+    form.onsubmit=submitEvent;
+  }
+  
   // thank you josh stodola
   // from http://stackoverflow.com/questions/986937/javascript-get-the-browsers-scrollbar-sizes
   // not always reliable, but good enough for now
@@ -380,8 +409,13 @@ Rear = function(initial_object, options) {
     rw.appendChild(cols);
     // append to body
     document.body.appendChild(rw);
-    // provide a var for this DOM that for later manipulation and traversal
-    window.rearwindow = { head: head, columns: cols, all: rw };
+    // save to window.rearwindow var for later manipulation and traversal
+    window.rearwindow.head = head;
+    window.rearwindow.columns = cols;
+    window.rearwindow.all = rw;
+    // attach click event to our first object
+    var first_obj = window.rearwindow.columns.getElementsByTagName('li')[0];
+    addEvent(first_obj, 'click', chooseFirstObj);
   }
 
   // bootstrap:
@@ -396,6 +430,9 @@ Rear = function(initial_object, options) {
       document.body.removeChild(old_css);
     }
   }
+  
+  // provide a var properties we want to manipulate later
+  window.rearwindow = {};
 
   // determine whether to load remote or custom css
   var css_href; 
@@ -406,6 +443,7 @@ Rear = function(initial_object, options) {
   } else {
     css_href = 'https://github.com/lukes/rear-window.js/raw/master/lib/rear-window.css'; // github repository
   }
+  window.rearwindow.css_href = css_href;
     
   // load css
   var css = document.createElement('link');

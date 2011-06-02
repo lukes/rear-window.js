@@ -1,7 +1,5 @@
 == need
 
-- allow specifying what object to being inspecting
-
 == want
 
 - hide button
