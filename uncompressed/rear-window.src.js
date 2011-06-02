@@ -5,7 +5,7 @@ Rear = function(initial_object, options) {
 
   // event management (thanks John Resig)
   // via blackbird.js http://www.gscottolson.com/blackbirdjs/ (thanks G. Scott Olson)
-  addEvent = function ( obj, type, fn ) {
+  var addEvent = function ( obj, type, fn ) {
     var obj = ( obj.constructor === String ) ? document.getElementById( obj ) : obj;
     if ( obj.attachEvent ) {
       obj[ 'e' + type + fn ] = fn;
@@ -13,7 +13,7 @@ Rear = function(initial_object, options) {
       obj.attachEvent( 'on' + type, obj[ type + fn ] );
     } else obj.addEventListener( type, fn, false );
   }
-  removeEvent = function ( obj, type, fn ) {
+  var removeEvent = function ( obj, type, fn ) {
     var obj = ( obj.constructor === String ) ? document.getElementById( obj ) : obj;
     if ( obj.detachEvent ) {
       obj.detachEvent( 'on' + type, obj[ type + fn ] );
@@ -22,7 +22,7 @@ Rear = function(initial_object, options) {
   }
 
   // called when a new column is added to DOM
-  addColumn = function(v) {
+  var addColumn = function(v) {
     if (typeof(v) == "string") v = eval(v);
     var e = document.createElement("div");
     addClass(e, 'col');
@@ -33,7 +33,7 @@ Rear = function(initial_object, options) {
     // or a variable (whose value should be displayed)
 
     var type = realTypeOf(v);
-    if (type == 'object' || type == 'html element') { // if this is an object that has properties
+    if (type == 'object' || type == 'html element' || type == 'audio' || type == 'image') { // if this is an object that has properties
       contents = columnForObject(v);
     } else {
       contents = columnForVar(v, type);
@@ -77,6 +77,8 @@ Rear = function(initial_object, options) {
         return JSON.stringify(v);
       case 'html element':
         return v.innerHTML;
+      case 'image': // TODO have a rethink about this
+        return JSON.stringify({width: v.width, height: v.height, title: v.title, alt: v.alt, src: v.src});
       case 'audio': // TODO have a rethink about this
         return JSON.stringify({autoplay: v.autoplay, controls: v.controls, loop: v.loop, preload: v.preload, src: v.src}); 
       default:
@@ -94,7 +96,7 @@ Rear = function(initial_object, options) {
 
     // used for tracking how much of each type of
     // property we have in the given object.
-    var type_count = { 'function': 0, 'object': 0, 'html element': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'storage': 0, 'audio': 0, 'undefined': 0, 'native function': 0 };
+    var type_count = { 'function': 0, 'object': 0, 'html element': 0, 'array': 0, 'string': 0, 'number': 0, 'date': 0, 'regex': 0, 'boolean': 0, 'null': 0, 'storage': 0, 'audio': 0, 'image': 0, 'undefined': 0, 'constructor': 0, 'native function': 0 };
 
     // loop over properties in the given object
     for (var i in obj) {
@@ -285,27 +287,33 @@ Rear = function(initial_object, options) {
   // and handling regex in Chrome
   var realTypeOf = function(v) {
     if (typeof(v) == 'object') {
-      if (v === null) return 'null';
-      if (v.constructor == (new Array).constructor) return 'array';
-      if (v.constructor == (new Date).constructor) return 'date';
-      if (v.constructor == (new RegExp).constructor) return 'regex';
-      if (v.constructor == (new Audio).constructor) return 'audio';
-      // it seems impossible to tell a Storage object from a regular object, 
-      // so test for storage objects the long way
-      if (typeof(localStorage) != 'undefined' && v == localStorage) return 'storage';
       try {
+        if (v === null) return 'null';
+        if (v.constructor == (new Array).constructor) return 'array';
+        if (v.constructor == (new Date).constructor) return 'date';
+        if (v.constructor == (new RegExp).constructor) return 'regex';
+        if (v.constructor == (new Audio).constructor) return 'audio';
+        if (v.constructor == (new Image).constructor) return 'image';
+        // it seems impossible to tell a Storage object from a regular object, 
+        // so test for storage objects the long way
+        if (typeof(localStorage) != 'undefined' && v == localStorage) return 'storage';
         // when accessing sessionStorage from a file url we get 
         // NS_ERROR_DOM_NOT_SUPPORTED_ERR on FF
         if (typeof(sessionStorage) != 'undefined' && v == sessionStorage) return 'storage';
         // test if this object is a dom element
         if (v.toString().match(/object\sHTML/)) return 'html element'; 
-      } catch (e) { } // do nothing
+      } catch (e) {}
       // otherwise, this is an object (should always be equivalent of JSON)
       return 'object';
     }
     if (typeof(v) == 'function') {
-      if (v.constructor == (new RegExp).constructor) return 'regex'; // for Google Chrome at least, typeof(new RegExp) is "function"
-      if (v.toString().match(/\[native\scode\]/)) return 'native function';
+      try {
+        if (v == (new RegExp).constructor) return 'constructor';
+        if (v == (new Audio).constructor) return 'constructor';
+        if (v == (new Image).constructor) return 'constructor';
+        if (v == (new Option).constructor) return 'constructor';
+        if (v.toString().match(/\[native\scode\]/)) return 'native function';        
+      } catch(e) {}
       return 'function';
     }
     return typeof(v);
