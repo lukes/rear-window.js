@@ -294,14 +294,14 @@ Rear = function(initial_object, options) {
         if (v.constructor == (new RegExp).constructor) return 'regex';
         if (v.constructor == (new Audio).constructor) return 'audio';
         if (v.constructor == (new Image).constructor) return 'image';
+        // test if this object is a dom element
+        if (v.toString().match(/object\sHTML/)) return 'html element';
         // it seems impossible to tell a Storage object from a regular object, 
         // so test for storage objects the long way
         if (typeof(localStorage) != 'undefined' && v == localStorage) return 'storage';
         // when accessing sessionStorage from a file url we get 
         // NS_ERROR_DOM_NOT_SUPPORTED_ERR on FF
         if (typeof(sessionStorage) != 'undefined' && v == sessionStorage) return 'storage';
-        // test if this object is a dom element
-        if (v.toString().match(/object\sHTML/)) return 'html element'; 
       } catch (e) {}
       // otherwise, this is an object (should always be equivalent of JSON)
       return 'object';
