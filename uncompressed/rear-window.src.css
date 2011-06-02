@@ -7,11 +7,10 @@
   position: absolute;
   z-index: 99999;
   top: 20px;
-  left: 50px;
+  left: 50px;  
 }
 #rw-head {
   line-height: 1em;
-  padding-left: 5px;
 }
 #rw-head img {
   width: 16px;
@@ -35,7 +34,7 @@
   min-width: 150px;
   max-width: 700px;
   height: 306px;
-  background-color: white;  
+  background-color: white;
 }
  #rw .col .var {
    background-color: #fff4d1;
@@ -59,7 +58,7 @@
  #rw ul li {
    list-style: none;
    padding: 2px;
-   margin: 1px 0;
+   margin-bottom: 1px;
    cursor: pointer;
  }
  #rw li.cat {
