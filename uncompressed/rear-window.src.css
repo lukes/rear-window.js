@@ -36,7 +36,7 @@
   border: 1px solid #aaa;
   border-radius: 3px;
   box-shadow: 2px 2px 10px #999;
-  height: 306px;
+  height: 315px;
 }
 #rw .col {
   float: left;
@@ -44,7 +44,7 @@
   overflow-x: hidden;
   min-width: 150px;
   max-width: 700px;
-  height: 306px;
+  height: 315px;
   background-color: white;
 }
  #rw .col .var {
