@@ -11,6 +11,7 @@
 }
 #rw-head {
   line-height: 1em;
+  text-align: left;
 }
 #rw-c { /* header close button */
   margin: 0 4px;
@@ -63,6 +64,7 @@
    padding: 2px;
    margin-bottom: 1px;
    cursor: pointer;
+   text-align: left;
  }
  #rw li.cat {
    background-color: #e5edfc;
