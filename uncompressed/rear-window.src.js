@@ -248,23 +248,8 @@ Rear = function(initial_object, options) {
     
     // add this new column
     rearwindow.columns.appendChild(new_column);
-//    resize();
 
   }	
-
-/*  var resize = function() {
-    var width = 0;
-    var columns = rearwindow.columns.getElementsByTagName('div');
-    // loop through columns in the DOM
-    for (var i=0;i<columns.length;i++) {
-      var column = columns[i];
-      if (!hasClass(column, 'col')) continue;
-      var styles = column.currentStyle || getComputedStyle(column, null);
-      width += (parseInt(styles.width) + window.scrollBarWidth); // TODO this buffer seems to be unneccessary for FF
-      console.log(parseInt(styles.width));
-    }
-    rearwindow.all.style.width = [width, 'px'].join('');
-  } */
 
   /* utilities */
 
@@ -282,7 +267,7 @@ Rear = function(initial_object, options) {
   var hasClass = function(elem, class_name) {
     return !!elem.className.match(class_name);
   }
-
+  
   // thank you Jon Combe
   // blog post http://joncom.be/code/realtypeof/
   // modified to add storage, audio, native function detection
@@ -344,34 +329,10 @@ Rear = function(initial_object, options) {
     document.body.removeChild(window.rearwindow.all);
   }
   
-  // TODO there's a lot of duplication between this and int()
-  // have a rethink
+  // called when user hits return when choosing a new variable to inspect
   var submitEvent = function() {
-    // determine if variable is valid first
     var input = rearwindow.columns.getElementsByTagName('input')[0].value;
-    var valid = false;
-    try {
-      if (typeof(eval(input) != 'undefined')) valid = true;
-    } catch(e) {}
-    if (valid) {
-      var col = document.createElement('div');
-      addClass(col, 'col focus');
-      col.innerHTML = ['<ul><li class="sel">', input, '</li></ul>'].join('');
-      // TODO should i unbind events before removing columns?
-      // empty
-      for (var i=0;i<rearwindow.columns.children.length;) {
-        var old_col = rearwindow.columns.children[i];
-        rearwindow.columns.removeChild(old_col);
-      }
-      rearwindow.columns.appendChild(col);
-      rearwindow.columns.appendChild(addColumn(input));
-      // attach click event to our first object
-      var first_obj = window.rearwindow.columns.getElementsByTagName('li')[0];
-      addEvent(first_obj, 'click', chooseFirstObj);
-    }
-    else {
-      alert([input, ' is undefined'].join(''));
-    }
+    refresh(input);
     return false; // prevent submit
   }
   
@@ -389,18 +350,39 @@ Rear = function(initial_object, options) {
     form.onsubmit = submitEvent;
   }
   
-  // thank you josh stodola
-  // from http://stackoverflow.com/questions/986937/javascript-get-the-browsers-scrollbar-sizes
-  // not always reliable, but good enough for now
-/*  window.scrollBarWidth = function() {
-    document.body.style.overflow = 'hidden'; 
-    var width = document.body.clientWidth;
-    document.body.style.overflow = 'scroll'; 
-    width -= document.body.clientWidth; 
-    if(!width) width = document.body.offsetWidth - document.body.clientWidth;
-    document.body.style.overflow = ''; 
-    return width;
-  }(); // modified to evaluate straight away */
+  // re-initialises the view with the given obj the first item
+  var refresh = function(obj) {
+    if (typeof(obj) != 'string') {
+      alert('Rear Window must be passed the variable name as a string');
+    } else {
+      try {
+        // eval the string. this will throw an error and pass us to
+        // catch() if the variable doesn't exist
+        typeof(eval(obj));
+        // variable is valid, so
+        // add new first column
+        var col = document.createElement('div');
+        addClass(col, 'col focus');
+        col.innerHTML = ['<ul><li class="sel">', obj, '</li></ul>'].join('');
+        // TODO should i unbind events before removing columns?
+        // remove any existing columns
+        for (var i=0;i<rearwindow.columns.children.length;) {
+          var old_col = rearwindow.columns.children[i];
+          rearwindow.columns.removeChild(old_col);
+        }
+        // add this first column
+        rearwindow.columns.appendChild(col);
+        // add the second column (either properties or the variable's single value)
+        rearwindow.columns.appendChild(addColumn(obj));
+        // attach click event to our first object
+        // to convert it to an input field onclick
+        var first_obj = window.rearwindow.columns.getElementsByTagName('li')[0];
+        addEvent(first_obj, 'click', chooseFirstObj);
+      } catch(e) {
+        alert([obj, ' is undefined'].join(''));
+      } 
+    }
+  }
 
   // sets up initial two columns
   var init = function(obj) {
@@ -412,16 +394,22 @@ Rear = function(initial_object, options) {
     var head = document.createElement('div');
     head.id = 'rw-head';
     // close button
-    var b_close = document.createElement('img');
-    b_close.src = 'https://github.com/lukes/rear-window.js/raw/master/lib/close.png';
-    b_close.alt = 'Close';
+    var b_close = document.createElement('span');
+    b_close.id = 'rw-c';
+    b_close.innerHTML = 'x '; // hmm, remove the pipe from being a link?
     addEvent(b_close, 'click', closeEvent);
     head.appendChild(b_close);
+    // potentially unnecessary tag-line
+    var tag = document.createElement('span');
+    tag.id = 'rw-t';
+    tag.innerHTML = 'RW.js';
+    addEvent(tag, 'click', function() { window.open('https://github.com/lukes/rear-window.js');});
+    head.appendChild(tag);
+    // add head
     rw.appendChild(head);
     // columns
     var cols = document.createElement('div');
     cols.id = 'rw-cols';
-    cols.innerHTML = ['<div class="col focus"><ul><li class="sel">', obj, '</li></ul></div>'].join('');
     // add first column
     cols.appendChild(addColumn(obj));
     rw.appendChild(cols);
@@ -431,9 +419,8 @@ Rear = function(initial_object, options) {
     window.rearwindow.head = head;
     window.rearwindow.columns = cols;
     window.rearwindow.all = rw;
-    // attach click event to our first object
-    var first_obj = window.rearwindow.columns.getElementsByTagName('li')[0];
-    addEvent(first_obj, 'click', chooseFirstObj);
+    // call refresh() method, which sets us up with a new inspector on this object
+    refresh(obj);
   }
 
   // bootstrap:

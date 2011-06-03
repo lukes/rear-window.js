@@ -12,11 +12,14 @@
 #rw-head {
   line-height: 1em;
 }
-#rw-head img {
-  width: 16px;
-  height: 16px;
+#rw-c { /* header close button */
+  margin: 0 4px;
 }
-#rw-head img:hover {
+#rw-t { /* header tag-line */
+  font-size: 9px;
+  color: #aaa;
+}
+#rw-head span:hover {
   cursor: pointer;
 }
 #rw-cols {
@@ -29,7 +32,7 @@
 }
 #rw .col {
   float: left;
-  overflow-y: scroll; /* auto */
+  overflow-y: scroll;
   overflow-x: hidden;
   min-width: 150px;
   max-width: 700px;
