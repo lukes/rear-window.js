@@ -23,6 +23,7 @@
 == bugs
 
 - if form field is visible, and you click a property, it should revert the form field to plain text before processing
+- on sites like last.fm, you get lots of blanks, plus reverse and forEach at the end of lists
 - when width of columns is too wide, columns get bumped to line below
   - can set a width for the wrapper, except with Chrome (at least)
   - width doesn't include the scrollbars 
