@@ -14,7 +14,14 @@
   text-align: left;
 }
 #rw-c { /* header close button */
-  margin: 0 4px;
+  margin: 0 3px 0 2px;
+  background-color: white;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  padding-left: 3px;
+  font-size: 11px;
+  line-height: normal;
+  border: 1px solid #CCC;
 }
 #rw-t { /* header tag-line */
   font-size: 9px;
@@ -54,6 +61,8 @@
    margin-top: 10px;
    line-height: 20px;
    padding: 0 5px;
+   word-wrap: break-word;
+   overflow-x: auto;
  }
  #rw ul {
    margin: 0;
