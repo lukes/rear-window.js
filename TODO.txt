@@ -3,16 +3,27 @@
 == want
 
 - hide button
-- option to remove all common objects from inspector (probably by loading iframe and comparing list of variables), including storage if storage is empty
 - draggable
 - when item is selected, and RW is focused, enable key navigation
 - plugins for main JS libraries, to add their unique property types, and also event listeners (?)
 - see events (per JS library)
 - correct pluralisation
+- backwards while loops are quicker than for loops
+- autocomplete for choosing a variable
+
+- option to remove all common objects from inspector, including storage if storage is empty
+  - creating a new iframe doesn't work, because it inherits variables from its parent
+  - can create a window object "x = window.open()", but this creates a popup, and the window
+    must remain open to access variables
+  - is there a way to create a fresh window object, look at its properties, without popping open a window?
+  - text was 'show common' checked by default
 
 == bugs
 
 - when width of columns is too wide, columns get bumped to line below
+  - can set a width for the wrapper, except with Chrome (at least)
+  - width doesn't include the scrollbars 
+  - http://stackoverflow.com/questions/986937/javascript-get-the-browsers-scrollbar-sizes
 - handle displaying "storage" (see window.menubar, window.sessionStorage in FF)
 - background-color when viewing a long variable value scrolls
 - what's rearwindow > columns > objects > dataset ?
