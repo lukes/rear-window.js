@@ -479,9 +479,15 @@ Rear = function(initial_object, options) {
     initial_object = 'window';
   }
   
-  // when CSS has loaded, initialise the Rear Window DOM
-  cssOnload('rw-cssloading', function() {
-    init(initial_object);
-  });
+  // check initial_object exists
+  try {
+    eval(initial_object);
+    // when CSS has loaded, initialise the Rear Window DOM
+    cssOnload('rw-cssloading', function() {
+      init(initial_object);
+    });
+  } catch(e) {
+    alert(['Rear Window could not load because ', initial_object, " is undefined. Check that this variable does exist.\n\nSee github.com/lukes/rear-window.js/wiki for help"].join('')); 
+  }
 
 }
