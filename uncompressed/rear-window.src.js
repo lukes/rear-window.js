@@ -3,8 +3,10 @@
 
 Rear = function(initial_object, options) {
 
+  /* utilities */
+
   // event management (thanks John Resig)
-  // via blackbird.js http://www.gscottolson.com/blackbirdjs/ (thanks G. Scott Olson)
+  // via blackbird.js http://www.gscottolson.com/blackbirdjs/ (thanks G. Scott Olson)  
   var addEvent = function ( obj, type, fn ) {
     var obj = ( obj.constructor === String ) ? document.getElementById( obj ) : obj;
     if ( obj.attachEvent ) {
@@ -21,6 +23,81 @@ Rear = function(initial_object, options) {
     } else obj.removeEventListener( type, fn, false );
   }
 
+  var addClass = function(elem, class_name) {
+    if (!hasClass(elem, class_name)) {
+      elem.className += (' ' + class_name);
+    }
+  }
+
+  var removeClass = function(elem, class_name) {
+    var regex = new RegExp(class_name, "gim");
+    elem.className = elem.className.replace(regex, '');
+  }
+
+  var hasClass = function(elem, class_name) {
+    return !!elem.className.match(class_name);
+  }
+  
+  // thank you Jon Combe
+  // blog post http://joncom.be/code/realtypeof/
+  // modified to add storage, audio, native function detection
+  // and handling regex in Chrome
+  var realTypeOf = function(v) {
+    if (typeof(v) == 'object') {
+      try {
+        if (v === null) return 'null';
+        if (v.constructor == (new Array).constructor) return 'array';
+        if (v.constructor == (new Date).constructor) return 'date';
+        if (v.constructor == (new RegExp).constructor) return 'regex';
+        if (v.constructor == (new Audio).constructor) return 'audio';
+        if (v.constructor == (new Image).constructor) return 'image';
+        // test if this object is a dom element
+        if (v.toString().match(/object\sHTML/)) return 'html element';
+        // it seems impossible to tell a Storage object from a regular object, 
+        // so test for storage objects the long way
+        if (typeof(localStorage) != 'undefined' && v == localStorage) return 'storage';
+        // when accessing sessionStorage from a file url we get 
+        // NS_ERROR_DOM_NOT_SUPPORTED_ERR on FF
+        if (typeof(sessionStorage) != 'undefined' && v == sessionStorage) return 'storage';
+      } catch (e) {}
+      // otherwise, this is an object (should always be equivalent of JSON)
+      return 'object';
+    }
+    if (typeof(v) == 'function') {
+      try {
+        if (v.toString().match(/\[native\scode\]/)) return 'native function';
+        if (v == (new Array).constructor) return 'constructor';
+        if (v == (new Date).constructor) return 'constructor';
+        if (v == (new RegExp).constructor) return 'constructor';
+        if (v == (new Audio).constructor) return 'constructor';
+        if (v == (new Image).constructor) return 'constructor';
+        if (v == (new Option).constructor) return 'constructor';
+      } catch(e) {}
+      return 'function';
+    }
+    return typeof(v);
+  }
+
+  /*
+   * 
+   * thank you galambalazs
+   * from http://stackoverflow.com/questions/3078584/link-element-onload/3136936#3136936
+   */
+  var cssOnload = function(id, callback) {
+    setTimeout(function listener(){
+      var el = document.getElementById(id),
+      comp = el.currentStyle || getComputedStyle(el, null);
+      if (comp.display === 'none') {
+        document.body.removeChild(el);
+        callback(); 
+      }
+      else 
+        setTimeout(listener, 50);
+    }, 50);
+  }
+
+  /* column building */
+
   // called when a new column is added to DOM
   var addColumn = function(v, skip_categories) {
     if (typeof(v) == "string") v = eval(v);
@@ -34,9 +111,9 @@ Rear = function(initial_object, options) {
 
     var type = realTypeOf(v);
     if (type == 'object' || type == 'html element' || type == 'audio' || type == 'image') { // if this is an object that has properties
-      contents = columnForObject(v, skip_categories);
+      contents = columnContentsForObject(v, skip_categories);
     } else {
-      contents = columnForVar(v, type);
+      contents = columnContentsForVar(v, type);
     }
 
     e.appendChild(contents);
@@ -44,7 +121,7 @@ Rear = function(initial_object, options) {
   }
 
   // print the inspection column for a variable
-  var columnForVar = function(obj, type) {
+  var columnContentsForVar = function(obj, type) {
     var div = document.createElement("div");
     addClass(div, 'var');
     var value = inspectVar(obj);
@@ -53,7 +130,7 @@ Rear = function(initial_object, options) {
     return div;
   }
   
-  // called from columnForVar()
+  // called from columnContentsForVar()
   // convert variable value(s) to strings
   var inspectVar = function(v) {
     var type = realTypeOf(v);
@@ -88,7 +165,7 @@ Rear = function(initial_object, options) {
   
   // display the properties of the object
   // with categories at the top
-  var columnForObject = function(obj, skip_categories) {
+  var columnContentsForObject = function(obj, skip_categories) {
     var ul = document.createElement("ul");
 
     // initialise array that will hold all properties for obj
@@ -149,6 +226,8 @@ Rear = function(initial_object, options) {
     }
     return ul;
   }
+  
+  /* events */
 
   // attach click events to items in columns
   var itemClickEvent = function() {
@@ -251,79 +330,6 @@ Rear = function(initial_object, options) {
 
   }	
 
-  /* utilities */
-
-  var addClass = function(elem, class_name) {
-    if (!hasClass(elem, class_name)) {
-      elem.className += (' ' + class_name);
-    }
-  }
-
-  var removeClass = function(elem, class_name) {
-    var regex = new RegExp(class_name, "gim");
-    elem.className = elem.className.replace(regex, '');
-  }
-
-  var hasClass = function(elem, class_name) {
-    return !!elem.className.match(class_name);
-  }
-  
-  // thank you Jon Combe
-  // blog post http://joncom.be/code/realtypeof/
-  // modified to add storage, audio, native function detection
-  // and handling regex in Chrome
-  var realTypeOf = function(v) {
-    if (typeof(v) == 'object') {
-      try {
-        if (v === null) return 'null';
-        if (v.constructor == (new Array).constructor) return 'array';
-        if (v.constructor == (new Date).constructor) return 'date';
-        if (v.constructor == (new RegExp).constructor) return 'regex';
-        if (v.constructor == (new Audio).constructor) return 'audio';
-        if (v.constructor == (new Image).constructor) return 'image';
-        // test if this object is a dom element
-        if (v.toString().match(/object\sHTML/)) return 'html element';
-        // it seems impossible to tell a Storage object from a regular object, 
-        // so test for storage objects the long way
-        if (typeof(localStorage) != 'undefined' && v == localStorage) return 'storage';
-        // when accessing sessionStorage from a file url we get 
-        // NS_ERROR_DOM_NOT_SUPPORTED_ERR on FF
-        if (typeof(sessionStorage) != 'undefined' && v == sessionStorage) return 'storage';
-      } catch (e) {}
-      // otherwise, this is an object (should always be equivalent of JSON)
-      return 'object';
-    }
-    if (typeof(v) == 'function') {
-      try {
-        if (v.toString().match(/\[native\scode\]/)) return 'native function';
-        if (v == (new Array).constructor) return 'constructor';
-        if (v == (new Date).constructor) return 'constructor';
-        if (v == (new RegExp).constructor) return 'constructor';
-        if (v == (new Audio).constructor) return 'constructor';
-        if (v == (new Image).constructor) return 'constructor';
-        if (v == (new Option).constructor) return 'constructor';
-      } catch(e) {}
-      return 'function';
-    }
-    return typeof(v);
-  }
-
-  // thank you galambalazs
-  // from http://stackoverflow.com/questions/3078584/link-element-onload/3136936#3136936
-  // modified to test for display == none
-  var cssOnload = function(id, callback) {
-    setTimeout(function listener(){
-      var el = document.getElementById(id),
-      comp = el.currentStyle || getComputedStyle(el, null);
-      if (comp.display === 'none') {
-        document.body.removeChild(el);
-        callback(); 
-      }
-      else 
-        setTimeout(listener, 50);
-    }, 50);
-  }
-  
   // TODO should i unbind events first?
   var closeEvent = function() {
     document.body.removeChild(window.rearwindow.all);
@@ -335,7 +341,7 @@ Rear = function(initial_object, options) {
     refresh(input);
     return false; // prevent submit
   }
-  
+    
   // fired when first item in rear window is clicked,
   // replaces clicked item with a textbox
   var chooseFirstObj = function() {
