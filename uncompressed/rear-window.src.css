@@ -10,22 +10,23 @@
   left: 50px;  
 }
 #rw-head {
-  line-height: 1em;
   text-align: left;
 }
 #rw-c { /* header close button */
-  margin: 0 3px 0 2px;
-  background-color: white;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  padding-left: 3px;
-  font-size: 11px;
-  line-height: normal;
-  border: 1px solid #CCC;
-}
-#rw-t { /* header tag-line */
+  line-height: 0;
+  vertical-align: top;
+  text-transform: uppercase;
   font-size: 9px;
-  color: #aaa;
+  font-family: sans-serif;
+  font-weight: bold;
+  padding: 1px 2px;
+  background-color: white;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border: 1px solid #CCC;
+  position: relative;
+  top: 15px;
+  left: -7px;
 }
 #rw-head span:hover {
   cursor: pointer;
